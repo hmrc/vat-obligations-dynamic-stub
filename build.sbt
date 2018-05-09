@@ -26,9 +26,7 @@ val appName: String = "vat-obligations-dynamic-stub"
 
 lazy val appDependencies: Seq[ModuleID] = compile ++ test()
 lazy val plugins: Seq[Plugins] = Seq.empty
-lazy val playSettings: Seq[Setting[_]] = Seq(
-  routesImport += "controllers.Binders._"
-)
+lazy val playSettings: Seq[Setting[_]] = Seq()
 
 lazy val coverageSettings: Seq[Setting[_]] = {
   import scoverage.ScoverageKeys

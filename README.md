@@ -6,7 +6,6 @@
 
 To use this stub, run the command `sbt "run 9158"`
 
-
 ## Data setup
 
 ### Populating the stub
@@ -54,7 +53,7 @@ To delete the data you added, send a **DELETE** request to `/setup/all-data`. No
 
 ### GET requests
 
-Send a **GET** request to `/*url` where url=`_id` of any required data previously populated. 
+Send a **GET** request to `/*url` where url=`_id` of any required data previously populated.
 
 #### Response
 

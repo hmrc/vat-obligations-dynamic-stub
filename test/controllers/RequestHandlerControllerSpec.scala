@@ -25,7 +25,7 @@ import testUtils.TestSupport
 
 class RequestHandlerControllerSpec extends TestSupport with MockDataRepository {
 
-  object TestRequestHandlerController extends RequestHandlerController(mockDataRepository, cc)
+  object TestRequestHandlerController extends RequestHandlerController(mockDataRepository)
 
   lazy val successModel = DataModel(
     _id = "test",

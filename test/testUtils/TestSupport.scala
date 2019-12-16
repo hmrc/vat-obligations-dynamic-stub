@@ -17,8 +17,6 @@
 package testUtils
 
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.mvc.ControllerComponents
-import play.api.test.Helpers.stubControllerComponents
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -29,7 +27,5 @@ trait TestSupport extends UnitSpec with GuiceOneServerPerSuite with Materializer
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-
-  val cc: ControllerComponents = stubControllerComponents()
 
 }

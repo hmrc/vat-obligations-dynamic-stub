@@ -17,7 +17,9 @@
 package testUtils
 
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.mvc.ControllerComponents
+import play.api.inject.Injector
+import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
+import play.api.test.FakeRequest
 import play.api.test.Helpers.stubControllerComponents
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.DataRepository
@@ -28,6 +30,8 @@ import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}
 import scala.concurrent.ExecutionContext
 
 trait TestSupport extends UnitSpec with GuiceOneServerPerSuite with MaterializerSupport with MongoSpecSupport {
+
+  def fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
   implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 

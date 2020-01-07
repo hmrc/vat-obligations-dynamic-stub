@@ -66,26 +66,6 @@ class RequestHandlerControllerSpec extends TestSupport with BeforeAndAfter {
     }
   }
 
-  "The postRequestHandler method" should {
-
-    "return the corresponding response of an incoming POST request" in {
-      repo.insert(successWithBodyModel)
-      lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest("POST", "bodyTest"))
-      await(bodyOf(result)) shouldBe s"${successWithBodyModel.response.get}"
-    }
-
-    "return a response status when there is no stubbed response body for an incoming POST request" in {
-      repo.insert(successModel)
-      lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest("POST", "test"))
-      status(result) shouldBe Status.OK
-    }
-
-    "return a 404 status if the endpoint specified in the POST request can't be found" in {
-      lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest())
-      status(result) shouldBe Status.NOT_FOUND
-    }
-  }
-
   "Calling .errorResponseBody" should {
 
     "return a formatted json body" in {

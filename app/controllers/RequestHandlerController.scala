@@ -50,14 +50,6 @@ class RequestHandlerController @Inject()(dataRepository: DataRepository) extends
     }
   }
 
-  def postRequestHandler(url: String): Action[AnyContent] = Action.async { implicit request =>
-    dataRepository.find("_id" -> s"""${request.uri.takeWhile(_ != '?')}""", "method" -> POST).map {
-      case head :: _ if head.response.nonEmpty => Status(head.status)(head.response.get) //return status and body
-      case head :: _ => Status(head.status) //Only return status, no body.
-      case _ => NotFound(errorResponseBody(request.uri))
-    }
-  }
-
   def errorResponseBody(path: String): JsValue = {
     Json.obj(
       "status" -> "404",

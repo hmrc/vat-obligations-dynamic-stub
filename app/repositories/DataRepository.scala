@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,24 @@
 package repositories
 
 import javax.inject.{Inject, Singleton}
-
 import models.DataModel
 import play.api.libs.json.Json.JsValueWrapper
-import play.modules.reactivemongo.MongoDbConnection
+import play.api.libs.json.OFormat
+import play.modules.reactivemongo.{MongoDbConnection, ReactiveMongoComponent}
+import reactivemongo.api.DefaultDB
 import reactivemongo.api.commands._
+import reactivemongo.bson.BSONObjectID
+import uk.gov.hmrc.mongo.{MongoConnector, ReactiveRepository}
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import play.api.libs.json.Format
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DataRepository @Inject()() extends MongoDbConnection {
+class DataRepository @Inject()(reactiveMongoComponent: ReactiveMongoComponent){
+
+  lazy val mongoConnector: MongoConnector = reactiveMongoComponent.mongoConnector
+  implicit val db: () => DefaultDB = mongoConnector.db
 
   private lazy val repository: DynamicStubRepository = new DynamicStubRepository()
 
@@ -37,5 +45,6 @@ class DataRepository @Inject()() extends MongoDbConnection {
   def removeById(id: String)(implicit ec: ExecutionContext): Future[WriteResult] = repository.removeById(id)
 
   def removeAll()(implicit ec: ExecutionContext): Future[WriteResult] = repository.removeAll()
+
 
 }

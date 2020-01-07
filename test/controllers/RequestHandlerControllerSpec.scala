@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,20 @@
 
 package controllers
 
-import mocks.MockDataRepository
 import models.DataModel
+import org.scalatest.BeforeAndAfter
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.mvc.Http.Status
 import testUtils.TestSupport
 
-class RequestHandlerControllerSpec extends TestSupport with MockDataRepository {
+class RequestHandlerControllerSpec extends TestSupport with BeforeAndAfter {
 
-  object TestRequestHandlerController extends RequestHandlerController(mockDataRepository)
+  before {
+    dropTestCollection("vat-obligations-dynamic-stub")
+  }
+
+  object TestRequestHandlerController extends RequestHandlerController(repo, cc)
 
   lazy val successModel = DataModel(
     _id = "test",
@@ -35,7 +39,7 @@ class RequestHandlerControllerSpec extends TestSupport with MockDataRepository {
   )
 
   lazy val successWithBodyModel = DataModel(
-    _id = "test",
+    _id = "bodyTest",
     method = "GET",
     status = Status.OK,
     response = Some(Json.parse("""{"something" : "hello"}"""))
@@ -44,24 +48,20 @@ class RequestHandlerControllerSpec extends TestSupport with MockDataRepository {
   "The getRequestHandler method" should {
 
     "return the status code specified in the model" in {
-      lazy val result = TestRequestHandlerController.getRequestHandler("/test")(FakeRequest())
-
-      mockFind(List(successModel)).twice()
+      repo.insert(successModel)
+      lazy val result = TestRequestHandlerController.getRequestHandler("")(FakeRequest("GET", "test"))
       status(result) shouldBe Status.OK
     }
 
     "return the status and body" in {
-      lazy val result = TestRequestHandlerController.getRequestHandler("/test")(FakeRequest())
-
-      mockFind(List(successWithBodyModel)).twice()
+      repo.insert(successWithBodyModel)
+      lazy val result = TestRequestHandlerController.getRequestHandler("")(FakeRequest("GET", "bodyTest"))
       status(result) shouldBe Status.OK
       await(bodyOf(result)) shouldBe s"${successWithBodyModel.response.get}"
     }
 
     "return a 404 status when the endpoint cannot be found" in {
-      lazy val result = TestRequestHandlerController.getRequestHandler("/test")(FakeRequest())
-
-      mockFind(List()).twice()
+      lazy val result = TestRequestHandlerController.getRequestHandler("")(FakeRequest())
       status(result) shouldBe Status.NOT_FOUND
     }
   }
@@ -69,26 +69,19 @@ class RequestHandlerControllerSpec extends TestSupport with MockDataRepository {
   "The postRequestHandler method" should {
 
     "return the corresponding response of an incoming POST request" in {
-      lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest())
-
-      mockFind(List(successWithBodyModel))
-
+      repo.insert(successWithBodyModel)
+      lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest("POST", "bodyTest"))
       await(bodyOf(result)) shouldBe s"${successWithBodyModel.response.get}"
     }
 
     "return a response status when there is no stubbed response body for an incoming POST request" in {
-      lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest())
-
-      mockFind(List(successModel))
-
+      repo.insert(successModel)
+      lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest("POST", "test"))
       status(result) shouldBe Status.OK
     }
 
     "return a 404 status if the endpoint specified in the POST request can't be found" in {
       lazy val result = TestRequestHandlerController.postRequestHandler("/test")(FakeRequest())
-
-      mockFind(List())
-
       status(result) shouldBe Status.NOT_FOUND
     }
   }

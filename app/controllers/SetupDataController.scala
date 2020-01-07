@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class SetupDataController @Inject()(dataRepository: DataRepository) extends Base
     }
   }
 
-  private def addStubDataToDB(json: DataModel): Future[Result] = {
+  private[controllers] def addStubDataToDB(json: DataModel): Future[Result] = {
     dataRepository.insert(json).map {
       case result if result.ok => Ok(s"The following JSON was added to the stub: \n\n${Json.toJson(json)}")
       case _ => InternalServerError(s"Failed to add data to Stub.")

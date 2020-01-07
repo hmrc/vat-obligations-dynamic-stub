@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,20 @@
 
 package controllers
 
-import mocks.MockDataRepository
 import models.DataModel
-import play.api.libs.json.Json
+import org.scalatest.BeforeAndAfter
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.mvc.Http.Status
 import testUtils.TestSupport
 
-class SetupDataControllerSpec extends TestSupport with MockDataRepository {
+class SetupDataControllerSpec extends TestSupport with BeforeAndAfter {
 
-  object TestSetupDataController extends SetupDataController(mockDataRepository)
+  before {
+    dropTestCollection("data")
+  }
+
+  object TestSetupDataController extends SetupDataController(repo, cc)
 
   "SetupDataController.addData" when {
 
@@ -37,24 +41,13 @@ class SetupDataControllerSpec extends TestSupport with MockDataRepository {
         response = Some(Json.parse("{}")),
         status = Status.OK)
 
-      "when validateResponseJson returns 'true'" should {
-
+      "when the provided JSON is valid" should {
 
         "return Status OK (200) if data successfully added to stub" in {
           lazy val request = FakeRequest().withBody(Json.toJson(model)).withHeaders(("Content-Type", "application/json"))
           lazy val result = TestSetupDataController.addData(request)
-
-          mockAddEntry(model)(successWriteResult)
           status(result) shouldBe Status.OK
         }
-        "return Status InternalServerError (500) if unable to add data to the stub" in {
-          lazy val request = FakeRequest().withBody(Json.toJson(model)).withHeaders(("Content-Type", "application/json"))
-          lazy val result = TestSetupDataController.addData(request)
-
-          mockAddEntry(model)(errorWriteResult)
-          status(result) shouldBe Status.INTERNAL_SERVER_ERROR
-        }
-
       }
     }
 
@@ -83,18 +76,9 @@ class SetupDataControllerSpec extends TestSupport with MockDataRepository {
       lazy val request = FakeRequest()
       lazy val result = TestSetupDataController.removeData("someUrl")(request)
 
-      mockRemoveById("someUrl")(successWriteResult)
+      TestSetupDataController.removeData("someUrl")
 
       status(result) shouldBe Status.OK
-    }
-
-    "return Status InternalServerError (500) on unsuccessful removal of data from the stub" in {
-      lazy val request = FakeRequest()
-      lazy val result = TestSetupDataController.removeData("someUrl")(request)
-
-      mockRemoveById("someUrl")(errorWriteResult)
-
-      status(result) shouldBe Status.INTERNAL_SERVER_ERROR
     }
 
   }
@@ -105,20 +89,10 @@ class SetupDataControllerSpec extends TestSupport with MockDataRepository {
       lazy val request = FakeRequest()
       lazy val result = TestSetupDataController.removeAll()(request)
 
-      mockRemoveAll()(successWriteResult)
+      TestSetupDataController.removeAll
 
       status(result) shouldBe Status.OK
     }
 
-    "return Status InternalServerError (500) on successful removal of all stubbed data" in {
-      lazy val request = FakeRequest()
-      lazy val result = TestSetupDataController.removeAll()(request)
-
-      mockRemoveAll()(errorWriteResult)
-
-      status(result) shouldBe Status.INTERNAL_SERVER_ERROR
-    }
-
   }
-
 }

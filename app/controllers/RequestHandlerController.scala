@@ -17,17 +17,16 @@
 package controllers
 
 import javax.inject.Inject
-
 import models.DataModel
 import models.HttpMethod._
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import repositories.DataRepository
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RequestHandlerController @Inject()(dataRepository: DataRepository) extends BaseController {
+class RequestHandlerController @Inject()(dataRepository: DataRepository, cc: ControllerComponents) extends BaseController(cc) {
 
   def getRequestHandler(url: String): Action[AnyContent] = Action.async { implicit request =>
 

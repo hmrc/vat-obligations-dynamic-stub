@@ -17,10 +17,9 @@
 package controllers
 
 import javax.inject.Inject
-
 import models.DataModel
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import models.HttpMethod._
 import repositories.DataRepository
@@ -28,7 +27,7 @@ import repositories.DataRepository
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SetupDataController @Inject()(dataRepository: DataRepository) extends BaseController {
+class SetupDataController @Inject()(dataRepository: DataRepository, cc: ControllerComponents) extends BaseController(cc) {
 
   val addData: Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[DataModel](json => json.method.toUpperCase match {

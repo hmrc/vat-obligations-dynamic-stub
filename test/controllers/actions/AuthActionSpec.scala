@@ -36,7 +36,7 @@ class AuthActionSpec extends TestSupport {
   "Auth Action" when {
     "the user hasn't logged in" must {
       "redirect the user to log in " in {
-        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new MissingBearerToken))
+        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new MissingBearerToken), cc)
         val controller = new Harness(authAction)
         val result = controller.someAction()(fakeRequest)
         status(result) shouldBe UNAUTHORIZED
@@ -45,7 +45,7 @@ class AuthActionSpec extends TestSupport {
 
     "the user's session has expired" must {
       "redirect the user to log in " in {
-        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new BearerTokenExpired))
+        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new BearerTokenExpired), cc)
         val controller = new Harness(authAction)
         val result = controller.someAction()(fakeRequest)
         status(result) shouldBe UNAUTHORIZED
@@ -54,7 +54,7 @@ class AuthActionSpec extends TestSupport {
 
     "the user doesn't have sufficient enrolments" must {
       "redirect the user to the unauthorised page" in {
-        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new InsufficientEnrolments))
+        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new InsufficientEnrolments), cc)
         val controller = new Harness(authAction)
         val result = controller.someAction()(fakeRequest)
         status(result) shouldBe FORBIDDEN
@@ -63,7 +63,7 @@ class AuthActionSpec extends TestSupport {
 
     "the user doesn't have sufficient confidence level" must {
       "redirect the user to the unauthorised page" in {
-        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new InsufficientConfidenceLevel))
+        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new InsufficientConfidenceLevel), cc)
         val controller = new Harness(authAction)
         val result = controller.someAction()(fakeRequest)
         status(result) shouldBe FORBIDDEN
@@ -72,7 +72,7 @@ class AuthActionSpec extends TestSupport {
 
     "the user used an unaccepted auth provider" must {
       "redirect the user to the unauthorised page" in {
-        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new UnsupportedAuthProvider))
+        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new UnsupportedAuthProvider), cc)
         val controller = new Harness(authAction)
         val result = controller.someAction()(fakeRequest)
         status(result) shouldBe FORBIDDEN
@@ -81,7 +81,7 @@ class AuthActionSpec extends TestSupport {
 
     "the user has an unsupported affinity group" must {
       "redirect the user to the unauthorised page" in {
-        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new UnsupportedAffinityGroup))
+        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new UnsupportedAffinityGroup), cc)
         val controller = new Harness(authAction)
         val result = controller.someAction()(fakeRequest)
         status(result) shouldBe FORBIDDEN
@@ -90,7 +90,7 @@ class AuthActionSpec extends TestSupport {
 
     "the user has an unsupported credential role" must {
       "redirect the user to the unauthorised page" in {
-        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new UnsupportedCredentialRole))
+        val authAction = new AuthActionImpl(new FakeFailingAuthConnector(new UnsupportedCredentialRole), cc)
         val controller = new Harness(authAction)
         val result = controller.someAction()(fakeRequest)
         status(result) shouldBe FORBIDDEN

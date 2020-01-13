@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import play.api.test.Helpers._
 import testUtils.TestSupport
 import uk.gov.hmrc.auth.core._
@@ -25,11 +25,11 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class AuthActionSpec extends TestSupport {
 
-  class Harness(authAction: AuthAction) extends Controller {
+  class Harness(authAction: AuthAction) extends BaseController {
+    val controllerComponents: ControllerComponents = cc
     def someAction(): Action[AnyContent] = authAction { _ => Ok }
   }
 

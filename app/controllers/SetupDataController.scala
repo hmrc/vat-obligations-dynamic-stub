@@ -20,23 +20,20 @@ import javax.inject.Inject
 import models.DataModel
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import models.HttpMethod._
 import repositories.DataRepository
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class SetupDataController @Inject()(dataRepository: DataRepository, cc: ControllerComponents) extends BaseController(cc) {
+class SetupDataController @Inject()(dataRepository: DataRepository, cc: ControllerComponents)
+                                   (implicit ec: ExecutionContext) extends BackendController(cc) {
 
   val addData: Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[DataModel](json => json.method.toUpperCase match {
       case GET | POST => addStubDataToDB(json)
       case x => Future.successful(BadRequest(s"The method: $x is currently unsupported"))
-    }
-    ).recover {
-      case ex => InternalServerError(s"Error Parsing Json DataModel: \n\t{$ex}")
-    }
+    })
   }
 
   private[controllers] def addStubDataToDB(json: DataModel): Future[Result] = {

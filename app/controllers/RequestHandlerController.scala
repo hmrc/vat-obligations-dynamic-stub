@@ -21,12 +21,13 @@ import models.DataModel
 import models.HttpMethod._
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import repositories.DataRepository
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import play.api.libs.json.{JsValue, Json}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
-class RequestHandlerController @Inject()(dataRepository: DataRepository, cc: ControllerComponents) extends BaseController(cc) {
+class RequestHandlerController @Inject()(dataRepository: DataRepository, cc: ControllerComponents)
+                                        (implicit ec: ExecutionContext) extends BackendController(cc) {
 
   def getRequestHandler(url: String): Action[AnyContent] = Action.async { implicit request =>
 

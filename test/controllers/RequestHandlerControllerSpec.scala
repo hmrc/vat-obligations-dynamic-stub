@@ -16,30 +16,19 @@
 
 package controllers
 
+import mocks.MockDataRepository
 import models.DataModel
-import org.scalatest.BeforeAndAfter
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.mvc.Http.Status
 import testUtils.TestSupport
 
-class RequestHandlerControllerSpec extends TestSupport with BeforeAndAfter {
+class RequestHandlerControllerSpec extends TestSupport with MockDataRepository {
 
-  before {
-    dropTestCollection("vat-obligations-dynamic-stub")
-  }
-
-  object TestRequestHandlerController extends RequestHandlerController(repo, cc)
+  object TestRequestHandlerController extends RequestHandlerController(mockDataRepository, cc)
 
   lazy val successModel = DataModel(
-    _id = "test",
-    method = "GET",
-    status = Status.OK,
-    response = None
-  )
-
-  lazy val successWithBodyModel = DataModel(
-    _id = "bodyTest",
+    _id = "/test",
     method = "GET",
     status = Status.OK,
     response = Some(Json.parse("""{"something" : "hello"}"""))
@@ -48,20 +37,23 @@ class RequestHandlerControllerSpec extends TestSupport with BeforeAndAfter {
   "The getRequestHandler method" should {
 
     "return the status code specified in the model" in {
-      repo.insert(successModel)
-      lazy val result = TestRequestHandlerController.getRequestHandler("")(FakeRequest("GET", "test"))
+      lazy val result = TestRequestHandlerController.getRequestHandler("/test")(FakeRequest())
+      mockFind(List(successModel))
+
       status(result) shouldBe Status.OK
     }
 
-    "return the status and body" in {
-      repo.insert(successWithBodyModel)
-      lazy val result = TestRequestHandlerController.getRequestHandler("")(FakeRequest("GET", "bodyTest"))
-      status(result) shouldBe Status.OK
-      await(bodyOf(result)) shouldBe s"${successWithBodyModel.response.get}"
+    "return the body specified in the model" in {
+      lazy val result = TestRequestHandlerController.getRequestHandler("/test")(FakeRequest())
+      mockFind(List(successModel))
+
+      await(bodyOf(result)) shouldBe s"${successModel.response.get}"
     }
 
     "return a 404 status when the endpoint cannot be found" in {
-      lazy val result = TestRequestHandlerController.getRequestHandler("")(FakeRequest())
+      lazy val result = TestRequestHandlerController.getRequestHandler("/test")(FakeRequest())
+      mockFind(List())
+
       status(result) shouldBe Status.NOT_FOUND
     }
   }
@@ -79,5 +71,4 @@ class RequestHandlerControllerSpec extends TestSupport with BeforeAndAfter {
       result shouldBe body
     }
   }
-
 }

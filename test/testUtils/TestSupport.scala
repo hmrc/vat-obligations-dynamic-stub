@@ -17,19 +17,15 @@
 package testUtils
 
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.inject.Injector
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubControllerComponents
-import play.modules.reactivemongo.ReactiveMongoComponent
-import repositories.DataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}
 
 import scala.concurrent.ExecutionContext
 
-trait TestSupport extends UnitSpec with GuiceOneServerPerSuite with MaterializerSupport with MongoSpecSupport {
+trait TestSupport extends UnitSpec with GuiceOneServerPerSuite with MaterializerSupport {
 
   def fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
@@ -38,11 +34,4 @@ trait TestSupport extends UnitSpec with GuiceOneServerPerSuite with Materializer
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   val cc: ControllerComponents = stubControllerComponents()
-
-  private val reactiveMongoComponent: ReactiveMongoComponent =
-    new ReactiveMongoComponent {
-      override def mongoConnector: MongoConnector = mongoConnectorForTest
-    }
-  val repo = new DataRepository(reactiveMongoComponent)
-
 }

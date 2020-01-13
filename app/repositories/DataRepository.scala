@@ -19,14 +19,10 @@ package repositories
 import javax.inject.{Inject, Singleton}
 import models.DataModel
 import play.api.libs.json.Json.JsValueWrapper
-import play.api.libs.json.OFormat
-import play.modules.reactivemongo.{MongoDbConnection, ReactiveMongoComponent}
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.DefaultDB
 import reactivemongo.api.commands._
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.mongo.{MongoConnector, ReactiveRepository}
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import play.api.libs.json.Format
+import uk.gov.hmrc.mongo.MongoConnector
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,7 +32,7 @@ class DataRepository @Inject()(reactiveMongoComponent: ReactiveMongoComponent){
   lazy val mongoConnector: MongoConnector = reactiveMongoComponent.mongoConnector
   implicit val db: () => DefaultDB = mongoConnector.db
 
-  private lazy val repository: DynamicStubRepository = new DynamicStubRepository()
+  private[repositories] lazy val repository: DynamicStubRepository = new DynamicStubRepository()
 
   def find(query: (String, JsValueWrapper)*)(implicit ec: ExecutionContext): Future[List[DataModel]] = repository.find(query:_*)
 

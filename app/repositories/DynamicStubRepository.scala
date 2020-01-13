@@ -23,5 +23,5 @@ import play.api.libs.json.Reads.StringReads
 import reactivemongo.api.DB
 import uk.gov.hmrc.mongo.ReactiveRepository
 
-class DynamicStubRepository(implicit mongo: () => DB, formats: Format[DataModel], manifest: Manifest[DataModel])
+class DynamicStubRepository(implicit mongo: () => DB, formats: Format[DataModel])
   extends ReactiveRepository[DataModel, String]("data", mongo, formats, Format(StringReads, StringWrites))

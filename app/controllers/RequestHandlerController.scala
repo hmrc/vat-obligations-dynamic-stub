@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,17 @@
 package controllers
 
 import javax.inject.Inject
-
 import models.DataModel
 import models.HttpMethod._
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import repositories.DataRepository
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import play.api.libs.json.{JsValue, Json}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
-class RequestHandlerController @Inject()(dataRepository: DataRepository) extends BaseController {
+class RequestHandlerController @Inject()(dataRepository: DataRepository, cc: ControllerComponents)
+                                        (implicit ec: ExecutionContext) extends BackendController(cc) {
 
   def getRequestHandler(url: String): Action[AnyContent] = Action.async { implicit request =>
 
@@ -47,14 +47,6 @@ class RequestHandlerController @Inject()(dataRepository: DataRepository) extends
       dataBasedOnCompleteUri <- dataUsingQueryStringParameters
     } yield {
       if (dataBasedOnCompleteUri.nonEmpty) getResult(dataBasedOnCompleteUri) else getResult(dataBasedOnUrlPath)
-    }
-  }
-
-  def postRequestHandler(url: String): Action[AnyContent] = Action.async { implicit request =>
-    dataRepository.find("_id" -> s"""${request.uri.takeWhile(_ != '?')}""", "method" -> POST).map {
-      case head :: _ if head.response.nonEmpty => Status(head.status)(head.response.get) //return status and body
-      case head :: _ => Status(head.status) //Only return status, no body.
-      case _ => NotFound(errorResponseBody(request.uri))
     }
   }
 

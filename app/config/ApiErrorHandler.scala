@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@
 package config
 
 import javax.inject.Inject
-
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.mvc.{RequestHeader, Result}
 import play.api.mvc.Results._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 import uk.gov.hmrc.play.bootstrap.http.JsonErrorHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ApiErrorHandler @Inject()(configuration: Configuration, auditConnector: AuditConnector)(implicit ec: ExecutionContext)
-  extends JsonErrorHandler(configuration, auditConnector) {
+class ApiErrorHandler @Inject()(configuration: Configuration, auditConnector: AuditConnector, httpAuditEvent: HttpAuditEvent)(implicit ec: ExecutionContext)
+  extends JsonErrorHandler(auditConnector, httpAuditEvent,configuration) {
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     super.onClientError(request, statusCode, message).map { result =>

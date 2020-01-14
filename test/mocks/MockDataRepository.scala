@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,44 +17,33 @@
 package mocks
 
 import models.DataModel
-import org.scalamock.handlers.{CallHandler1, CallHandler2}
-import org.scalamock.scalatest.MockFactory
-import play.api.libs.json.Json.JsValueWrapper
-import reactivemongo.api.commands.{DefaultWriteResult, WriteError, WriteResult}
+import reactivemongo.api.commands.{UpdateWriteResult, WriteError, WriteResult}
 import repositories.DataRepository
 import testUtils.TestSupport
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.any
+import org.mockito.stubbing.OngoingStubbing
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-trait MockDataRepository extends TestSupport with MockFactory {
+trait MockDataRepository extends TestSupport with MockitoSugar {
 
-  val successWriteResult = DefaultWriteResult(ok = true, n = 1, writeErrors = Seq(), None, None, None)
-  val errorWriteResult = DefaultWriteResult(ok = false, n = 1, writeErrors = Seq(WriteError(1,1,"Error")), None, None, None)
+  val successWriteResult = UpdateWriteResult(ok = true, 1, 1, Seq(), Seq(), None, None, None)
+  val errorWriteResult =
+    UpdateWriteResult(ok = false, 1, 0, Seq(), writeErrors = Seq(WriteError(1,1,"Error")), None, None, None)
 
   lazy val mockDataRepository: DataRepository = mock[DataRepository]
 
-  def mockAddEntry(document: DataModel)(response: WriteResult): CallHandler2[DataModel, ExecutionContext, Future[WriteResult]] = {
-    (mockDataRepository.insert(_: DataModel)(_: ExecutionContext))
-      .expects(document, *)
-      .returning(response)
-  }
+  def mockAddEntry(document: DataModel)(response: WriteResult): OngoingStubbing[Future[WriteResult]] =
+    when(mockDataRepository.insert(document)(ec)).thenReturn(response)
 
-  def mockRemoveById(url: String)(response: WriteResult): CallHandler2[String, ExecutionContext, Future[WriteResult]] = {
-    (mockDataRepository.removeById(_: String)(_: ExecutionContext))
-      .expects(url, *)
-      .returning(response)
-  }
+  def mockRemoveById(id: String)(response: WriteResult): OngoingStubbing[Future[WriteResult]] =
+    when(mockDataRepository.removeById(id)(ec)).thenReturn(response)
 
-  def mockRemoveAll()(response: WriteResult): CallHandler1[ExecutionContext, Future[WriteResult]] = {
-    (mockDataRepository.removeAll()(_: ExecutionContext))
-      .expects(*)
-      .returning(response)
-  }
+  def mockRemoveAll(response: WriteResult): OngoingStubbing[Future[WriteResult]] =
+    when(mockDataRepository.removeAll()(ec)).thenReturn(response)
 
-  def mockFind(response: List[DataModel]): CallHandler2[(String, JsValueWrapper), ExecutionContext, Future[List[DataModel]]] = {
-    (mockDataRepository.find(_: (String, JsValueWrapper))(_: ExecutionContext))
-      .expects(*,*)
-      .returning(response)
-  }
-
+  def mockFind(response: List[DataModel]): OngoingStubbing[Future[List[DataModel]]] =
+    when(mockDataRepository.find(any())(any())).thenReturn(response)
 }

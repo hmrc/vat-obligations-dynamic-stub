@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,5 +23,5 @@ import play.api.libs.json.Reads.StringReads
 import reactivemongo.api.DB
 import uk.gov.hmrc.mongo.ReactiveRepository
 
-class DynamicStubRepository(implicit mongo: () => DB, formats: Format[DataModel], manifest: Manifest[DataModel])
+class DynamicStubRepository(implicit mongo: () => DB, formats: Format[DataModel])
   extends ReactiveRepository[DataModel, String]("data", mongo, formats, Format(StringReads, StringWrites))

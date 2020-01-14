@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,15 +34,15 @@ lazy val coverageSettings: Seq[Setting[_]] = {
   val excludedPackages = Seq(
     "<empty>",
     "Reverse.*",
-    ".*standardError*.*",
-    ".*govuk_wrapper*.*",
-    ".*main_template*.*",
+    "Routes.*",
     "uk.gov.hmrc.BuildInfo",
     "app.*",
     "prod.*",
     "config.*",
-    "testOnlyDoNotUseInAppConf.*",
-    "partials.*")
+    "setup.*",
+    "stub.*",
+    "testOnlyDoNotUseInAppConf.*"
+  )
 
   Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
@@ -54,19 +54,20 @@ lazy val coverageSettings: Seq[Setting[_]] = {
 
 val compile = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.13.0",
-  "uk.gov.hmrc" %% "domain" % "5.6.0-play-25",
-  "uk.gov.hmrc" %% "play-reactivemongo" % "6.7.0",
-  "org.typelevel" %% "cats" % "0.9.0"
+  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
+  "uk.gov.hmrc" %% "domain" % "5.6.0-play-26",
+  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.22.0-play-26"
 )
 
 def test(scope: String = "test,it"): Seq[ModuleID] = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-25" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
   "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % scope,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-  "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope
+  "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.16.0-play-26" % scope,
+  "org.mockito" % "mockito-core" % "3.2.4" % scope
 )
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] = tests map {
@@ -75,6 +76,7 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] = tests map {
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
+  .settings(PlayKeys.playDefaultPort := 9158)
   .settings(coverageSettings: _*)
   .settings(playSettings: _*)
   .settings(scalaSettings: _*)

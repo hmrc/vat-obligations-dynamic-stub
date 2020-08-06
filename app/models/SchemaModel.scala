@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package repositories
+package models
 
-import models._
-import play.api.libs.json.Format
-import play.api.libs.json.Writes.StringWrites
-import play.api.libs.json.Reads.StringReads
-import reactivemongo.api.DB
-import uk.gov.hmrc.mongo.ReactiveRepository
+import play.api.libs.json.{JsValue, Json, OFormat}
 
-class DynamicStubRepository[T](implicit mongo: () => DB, formats: Format[T])
-  extends ReactiveRepository[T, String]("data", mongo, formats, Format(StringReads, StringWrites))
+case class SchemaModel(_id: String,
+                       url: String,
+                       method: String,
+                       responseSchema: JsValue,
+                       requestSchema: Option[JsValue] = None)
+
+object SchemaModel {
+  implicit val formats: OFormat[SchemaModel] = Json.format[SchemaModel]
+}

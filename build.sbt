@@ -15,6 +15,7 @@
  */
 
 import play.core.PlayVersion
+import play.sbt.routes.RoutesKeys
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
@@ -27,6 +28,7 @@ val appName: String = "vat-obligations-dynamic-stub"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test()
 lazy val plugins: Seq[Plugins] = Seq.empty
 lazy val playSettings: Seq[Setting[_]] = Seq.empty
+RoutesKeys.routesImport := Seq.empty
 
 lazy val coverageSettings: Seq[Setting[_]] = {
   import scoverage.ScoverageKeys
@@ -34,6 +36,8 @@ lazy val coverageSettings: Seq[Setting[_]] = {
   val excludedPackages = Seq(
     "<empty>",
     "Reverse.*",
+    "com.kenshoo.play.metrics.*",
+    "controllers.javascript.*",
     "Routes.*",
     "uk.gov.hmrc.BuildInfo",
     "app.*",
@@ -54,25 +58,26 @@ lazy val coverageSettings: Seq[Setting[_]] = {
 
 val compile = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
-  "uk.gov.hmrc" %% "domain" % "5.6.0-play-26",
-  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.22.0-play-26",
-  "com.github.fge" % "json-schema-validator" % "2.2.6"
+  "uk.gov.hmrc"    %% "bootstrap-backend-play-26"    % "2.24.0",
+  "uk.gov.hmrc"    %% "domain"                       % "5.9.0-play-26",
+  "uk.gov.hmrc"    %% "simple-reactivemongo"         % "7.30.0-play-26",
+  "com.github.fge" % "json-schema-validator"         % "2.2.6"
 )
 
 def test(scope: String = "test,it"): Seq[ModuleID] = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
-  "org.scalatest" %% "scalatest" % "3.0.8" % scope,
-  "org.pegdown" % "pegdown" % "1.6.0" % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-  "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.16.0-play-26" % scope,
-  "org.mockito" % "mockito-core" % "3.2.4" % scope
+  "uk.gov.hmrc"             %% "hmrctest"                    % "3.9.0-play-26"     % scope,
+  "org.scalatest"           %% "scalatest"                   % "3.0.8"             % scope,
+  "org.pegdown"             %  "pegdown"                     % "1.6.0"             % scope,
+  "org.scalatestplus.play"  %% "scalatestplus-play"          % "3.1.3"             % scope,
+  "com.typesafe.play"       %% "play-test"                   % PlayVersion.current % scope,
+  "org.scalamock"           %% "scalamock-scalatest-support" % "3.6.0"             % scope,
+  "uk.gov.hmrc"             %% "reactivemongo-test"          % "4.21.0-play-26"    % scope,
+  "org.mockito"             %  "mockito-core"                % "3.2.4"             % scope
 )
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] = tests map {
-  test => Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
+  test =>
+    Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector("-Dtest.name=" + test.name))))
 }
 
 lazy val microservice = Project(appName, file("."))
@@ -85,7 +90,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(defaultSettings(): _*)
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.11.11",
+    scalaVersion := "2.12.11",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),

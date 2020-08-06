@@ -20,7 +20,7 @@ import javax.inject.Inject
 import models.DataModel
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import models.HttpMethod._
 import repositories.DataRepository
 import utils.SchemaValidation
@@ -66,14 +66,14 @@ class SetupDataController @Inject()(dataRepository: DataRepository,
     })
   }
 
-  val removeData: String => Action[AnyContent] = url => Action.async { implicit request =>
+  val removeData: String => Action[AnyContent] = url => Action.async {
     dataRepository.removeById(url).map {
       case result if result.ok => Ok("Success")
       case _ => InternalServerError("Could not delete data")
     }
   }
 
-  val removeAll: Action[AnyContent] = Action.async { implicit request =>
+  val removeAll: Action[AnyContent] = Action.async {
     dataRepository.removeAll().map {
       case result if result.ok => Ok("Removed All Stubbed Data")
       case _ => InternalServerError("Unexpected Error Clearing MongoDB.")

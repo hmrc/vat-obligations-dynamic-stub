@@ -41,23 +41,19 @@ class SetupDataController @Inject()(dataRepository: DataRepository,
               schemaValidation.validateResponseJson(model.schemaId, model.response) flatMap {
                 case true => addStubDataToDB(model)
                 case false =>
-                  println(Console.YELLOW + "Response bad, bleh: " + model.response.get + Console.RESET)
                   Future.successful(BadRequest(
                   s"The Json Body:\n\n${model.response.get} did not validate against the Schema Definition"))
               }
             case false =>
-              println(Console.YELLOW + "URL did not match" + Console.RESET)
               schemaValidation.loadUrlRegex(model.schemaId) map {
                 regex => BadRequest(s"URL ${model._id} did not match the Schema Definition Regex $regex")
               }
           }
         case x =>
-          println(Console.YELLOW + "Bad method" + Console.RESET)
           Future.successful(BadRequest(s"The method: $x is currently unsupported"))
       }
     ).recover {
       case _ =>
-        println(Console.YELLOW + "Json no go" + Console.RESET)
         InternalServerError("Error Parsing Json DataModel")
     }
   }

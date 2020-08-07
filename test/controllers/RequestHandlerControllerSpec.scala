@@ -29,6 +29,7 @@ class RequestHandlerControllerSpec extends TestSupport with MockDataRepository {
 
   lazy val successModel = DataModel(
     _id = "/test",
+    schemaId = "asdf",
     method = "GET",
     status = Status.OK,
     response = Some(Json.parse("""{"something" : "hello"}"""))

@@ -29,8 +29,8 @@ import scala.concurrent.Future
 
 trait MockDataRepository extends TestSupport with MockitoSugar {
 
-  val successWriteResult = UpdateWriteResult(ok = true, 1, 1, Seq(), Seq(), None, None, None)
-  val errorWriteResult =
+  val successWriteResult: UpdateWriteResult = UpdateWriteResult(ok = true, 1, 1, Seq(), Seq(), None, None, None)
+  val errorWriteResult: UpdateWriteResult =
     UpdateWriteResult(ok = false, 1, 0, Seq(), writeErrors = Seq(WriteError(1,1,"Error")), None, None, None)
 
   lazy val mockDataRepository: DataRepository = mock[DataRepository]

@@ -21,7 +21,7 @@ import models.SchemaModel
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import repositories.SchemaRepository
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
@@ -43,7 +43,7 @@ class SetupSchemaController @Inject()(schemaRepository: SchemaRepository,
     }
   }
 
-  val removeSchema: String => Action[AnyContent] = id => Action.async { implicit request =>
+  val removeSchema: String => Action[AnyContent] = id => Action.async {
     schemaRepository.removeById(id).map(result => if (result.ok) {
       Ok("Success")
     } else {
@@ -51,7 +51,7 @@ class SetupSchemaController @Inject()(schemaRepository: SchemaRepository,
     })
   }
 
-  val removeAll: Action[AnyContent] = Action.async { implicit request =>
+  val removeAll: Action[AnyContent] = Action.async {
     schemaRepository.removeAll().map(result => if (result.ok) {
       Ok("Removed All Schemas")
     } else {

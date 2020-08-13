@@ -16,10 +16,9 @@
 
 package repositories
 
-import models._
 import play.api.libs.json.Format
-import play.api.libs.json.Writes.StringWrites
 import play.api.libs.json.Reads.StringReads
+import play.api.libs.json.Writes.StringWrites
 import reactivemongo.api.DB
 import uk.gov.hmrc.mongo.ReactiveRepository
 

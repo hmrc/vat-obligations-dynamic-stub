@@ -17,9 +17,8 @@
 package controllers
 
 import javax.inject.Inject
-import models.DataModel
 import models.HttpMethod._
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import repositories.DataRepository
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import play.api.libs.json.{JsValue, Json}
@@ -31,30 +30,15 @@ class RequestHandlerController @Inject()(dataRepository: DataRepository, cc: Con
 
   def getRequestHandler(url: String): Action[AnyContent] = Action.async { implicit request =>
 
-    val dataNotUsingQueryStringParameters =
-      dataRepository.find("_id" -> s"""${request.uri.takeWhile(_ != '?')}""", "method" -> GET)
-    val dataUsingQueryStringParameters =
-      dataRepository.find("_id" -> request.uri, "method" -> GET)
-
-    def getResult(data: List[DataModel]): Result = data match {
-      case head :: _ if head.response.nonEmpty => Status(head.status)(head.response.get) //return status and body
-      case head :: _ => Status(head.status) //Only return status, no body.
-      case _ => NotFound(errorResponseBody(request.uri))
-    }
-
-    for {
-      dataBasedOnUrlPath <- dataNotUsingQueryStringParameters
-      dataBasedOnCompleteUri <- dataUsingQueryStringParameters
-    } yield {
-      if (dataBasedOnCompleteUri.nonEmpty) getResult(dataBasedOnCompleteUri) else getResult(dataBasedOnUrlPath)
+    dataRepository.find("_id" -> request.uri, "method" -> GET).map {
+      case head :: _ if head.response.nonEmpty => Status(head.status)(head.response.get)
+      case head :: _ => Status(head.status)
+      case _ => NotFound(errorResponseBody)
     }
   }
 
-  def errorResponseBody(path: String): JsValue = {
-    Json.obj(
-      "status" -> "404",
-      "message" -> s"Could not find endpoint in Dynamic Stub matching the URI: $path",
-      "path" -> path
-    )
-  }
+  val errorResponseBody: JsValue = Json.obj(
+    "code" -> "NOT_FOUND",
+    "reason" -> "The remote endpoint has indicated that no associated data found."
+  )
 }
